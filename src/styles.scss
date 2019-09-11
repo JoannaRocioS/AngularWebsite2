@@ -45,5 +45,10 @@ $divider-color:        #BDBDBD;
 }
 
 .flex-spacer {
-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+.text-size {
+  margin: 20px;
+  display: flex;
 }
