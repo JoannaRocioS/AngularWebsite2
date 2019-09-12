@@ -14,13 +14,14 @@ import { DishService } from '../services/dish.service';
 
     dish: Dish;
   
-    constructor(private dishService: DishService,
+    constructor(private dishservice: DishService,
       private route: ActivatedRoute,
       private location: Location) { }
   
     ngOnInit() { 
-      let id = this.route.snapshot.params['id'];
-      this.dish = this.dishService.getDish(id);
+      const id = this.route.snapshot.params['id'];
+      this.dishservice.getDish(id)
+      .then(dish => this.dish = dish);
     }
 
     goBack(): void {
