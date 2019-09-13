@@ -13,15 +13,22 @@ import { DishService } from '../services/dish.service';
   export class DishdetailComponent implements OnInit {
 
     dish: Dish;
+    dishes: Dish[];
   
     constructor(private dishservice: DishService,
-      private route: ActivatedRoute,
-      private location: Location) { }
+      private location: Location,
+      private activatedroute: ActivatedRoute) { }
   
     ngOnInit() { 
-      const id = this.route.snapshot.params['id'];
-      this.dishservice.getDish(id)
-      .then(dish => this.dish = dish);
+      // const id = this.route.snapshot.params['id'];
+      // this.dishservice.getDish(id);
+      // .then((dish: Dish) => this.dish = dish);
+      this.dishservice.getFeaturedDish()
+      .subscribe((dish) => this.dish = dish);
+
+      // this.dishservice.getDishes()
+      // .subscribe((dishes) => this.dishes = dishes);
+      
     }
 
     goBack(): void {

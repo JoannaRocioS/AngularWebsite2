@@ -14,18 +14,18 @@ export class AboutComponent implements OnInit {
 
   leader: Leader[];
   leaders: Leader[];
-  dishes: Dish[]
+  dishes: Dish[];
 
   constructor(
-    private leaderService: LeaderService,
-    private dishService: DishService) { }
+    private leaderservice: LeaderService,
+    private dishservice: DishService) { }
   ngOnInit() {
 
-    this.dishService.getDishes()
-    .then(dishes => this.dishes = dishes);
+    this.dishservice.getDishes()
+    .subscribe((dishes) => this.dishes = dishes);
 
-    this.leaderService.getLeaders()
-    .then(leaders => this.leaders = leaders);
+    this.leaderservice.getLeaders()
+    .subscribe((leaders) => this.leaders = leaders);
 
 
     // this.leader = this.leaderservice.getFeaturedLeader();
