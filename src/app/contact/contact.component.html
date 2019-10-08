@@ -36,32 +36,101 @@
     </div>
   </div>
 
-  <div fxFlex fxFlexOffset="20px" class="form-size">
+  <div fxFlex fxFlexOffset="20px" class="form-size" [@visibility]="visibility" [@expand]>
+      <p>
+          <mat-list *ngIf="feedbackForm.valid">
+              <mat-list-item>
+                <h3>Your Submission</h3>
+              </mat-list-item>
+              <mat-list-item>
+                  <h4 matLine>
+                    <span> First Name: {{feedbackForm.get('firstname').value}}</span>
+                  </h4>
+                  <h4 matLine>
+                    <span> Last Name: {{feedbackForm.get('lastname').value}}</span>
+                  </h4>
+                  <h4 matLine>
+                    <span> Tel. Number: {{feedbackForm.get('telnum').value}}</span>
+                  </h4>
+                  <h4 matLine>
+                    <span> Email: {{feedbackForm.get('email').value}}</span>
+                  </h4>
+                  <h4 matLine>
+                    <span> Contact You: {{feedbackForm.get('contact').value}}</span>
+                  </h4>
+                  <h4 matLine>
+                    <span> How?: {{feedbackForm.get('contactType').value}}</span>
+                  </h4>
+                  <h4 matLine>
+                    <span> Feedback: {{feedbackForm.get('message').value}}</span>
+                  </h4>
+              </mat-list-item>
+          </mat-list> 
+        </p>
+
       <h3>Send us your Feedback</h3>
-      <p>{{ feedbackForm.value | json }} {{ feedbackForm.status | json }}</p>
   
       <form novalidate [formGroup]="feedbackForm" #fform="ngForm" (ngSubmit)="onSubmit()">
         <p>
-            <mat-form-field class="half-width">
-                <input matInput formControlName="firstname" placeholder="First Name" type="text" required>
-                <mat-error *ngIf="formErrors.firstname">{{formErrors.firstname}}</mat-error>
-              </mat-form-field>
-              <mat-form-field class="half-width">
-                <input matInput formControlName="lastname" placeholder="Last Name" type="text" required>
-                <mat-error *ngIf="formErrors.lastname">{{formErrors.lastname}}</mat-error>
-              </mat-form-field>
-            </p>
-            <p>
-              <mat-form-field class="half-width">
-                <input matInput formControlName="telnum" placeholder="Tel. Number" type="tel" pattern="[0-9]*" required>
-                <mat-error *ngIf="formErrors.telnum">{{formErrors.telnum}}</mat-error>
-              </mat-form-field>
-              <mat-form-field class="half-width">
-                <input matInput formControlName="email" placeholder="Email" type="email" email required>
-                <mat-error *ngIf="formErrors.email">{{formErrors.email}}</mat-error>
-              </mat-form-field>
+          <mat-form-field class="half-width">
+            <input matInput formControlName="firstname" placeholder="First Name" type="text" required>
+            <mat-error *ngIf="formErrors.firstname">{{formErrors.firstname}}</mat-error>
+          </mat-form-field>
+          <mat-form-field class="half-width">
+            <input matInput formControlName="lastname" placeholder="Last Name" type="text" required>
+            <mat-error *ngIf="formErrors.lastname">{{formErrors.lastname}}</mat-error>
+          </mat-form-field>
         </p>
-        <button type="submit" mat-button class="background-primary text-floral-white">Submit</button>
+        
+        <p>
+          <mat-form-field class="half-width">
+            <input matInput formControlName="telnum" placeholder="Tel. Number" type="tel" pattern="[0-9]*" required>
+            <mat-error *ngIf="formErrors.telnum">{{formErrors.telnum}}</mat-error>
+          </mat-form-field>
+          <mat-form-field class="half-width">
+            <input matInput formControlName="email" placeholder="Email" type="email" email required>
+            <mat-error *ngIf="formErrors.email">{{formErrors.email}}</mat-error>
+          </mat-form-field>
+        </p>
+        <p>
+          <mat-slide-toggle>May we contact you?</mat-slide-toggle>         
+          <mat-form-field>
+            <mat-select>
+            <mat-label>How?</mat-label>
+                <mat-option value="option1">Email</mat-option>
+                <mat-option value="option2">Tel. Number</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </p>
+
+       <!-- <form novalidate [formGroup]="submitFeedback" #cform="ngForm" (ngSubmit)="onSubmit()">
+            <p>
+                <mat-form-field class="full-width">
+                    <textarea matInput formControlName="Feedback" placeholder="Your Comment" type="text" required></textarea>
+                    <mat-error *ngIf="formErrors.message">{{formErrors.message}}</mat-error>
+                </mat-form-field>
+            </p> -->
+
       </form>
-    </div>
-</div>
+
+        <form novalidate [formGroup]="feedbackForm" #fform="ngForm" (ngSubmit)="onSubmit()">
+          <p>
+              <mat-form-field class="full-width">
+                <textarea matInput formControlName="message" placeholder="Your Comment" type="text" required></textarea>
+                <mat-error *ngIf="formErrors.message">{{formErrors.message}}</mat-error>      
+              </mat-form-field>
+              <button type="submit" mat-button class="background-primary text-floral-white">Submit</button>
+          </p>
+          
+        <div [hidden]="feedback || errMess">
+          <p>Submiting Form</p>
+            <mat-spinner></mat-spinner> <h4>Loading . . . Please Wait</h4>
+        </div>
+        <!-- <div *ngIf="formErrors">
+            <h2>Error</h2>
+            <h4>{{errMess}}</h4>
+        </div> -->
+
+        </form>
+      </div>
+  </div>

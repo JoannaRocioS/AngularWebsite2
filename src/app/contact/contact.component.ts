@@ -1,11 +1,24 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Feedback, ContactType } from '../shared/feedback';
+import { FeedbackService } from '../services/feedback.service';
+import { visibility, flyInOut, expand } from '../animations/app.animation';
+import { Params, ActivatedRoute } from '@angular/router';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-contact',
   templateUrl: './contact.component.html',
-  styleUrls: ['./contact.component.scss']
+  styleUrls: ['./contact.component.scss'],
+  host: {
+    '[@flyInOut]': 'true',
+    'style': 'display: block;'
+  },
+  animations: [
+  flyInOut(),
+  visibility(),
+  expand()
+  ]
 })
 
 export class ContactComponent implements OnInit {
@@ -13,6 +26,11 @@ export class ContactComponent implements OnInit {
   feedbackForm: FormGroup;
   feedback: Feedback;
   contactType = ContactType;
+  feedbackcopy: Feedback;
+  visibility = 'shown';
+  @ViewChild('fform', {static: false}) commentFormDirective;
+  comment: Comment;
+  errMess: string;
   
   @ViewChild('fform', {static: false})feedbackFormDirective;
 
@@ -20,7 +38,8 @@ export class ContactComponent implements OnInit {
     'firstname': '',
     'lastname': '',
     'telnum': '',
-    'email': ''
+    'email': '',
+    'message': ''
   };
 
   validationMessages = {
@@ -42,66 +61,95 @@ export class ContactComponent implements OnInit {
       'required':      'Email is required.',
       'email':         'Email not in valid format.'
     },
+    'message': {
+      'required':      'Message is required.',
+      'minlength':     'Message must be at least 5 characters long.',
+      'maxlength':     'Messagecannot be more than 100 characters long.'
+    }
   };
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private feedbackService: FeedbackService) {
     this.createForm();
   }
 
   ngOnInit() {
+
+    this.createForm();
+
+    this.route.params
+      .pipe(switchMap((params: Params) => { this.visibility = 'hidden'; return this.feedbackService.addFeedback}))
+      .subscribe(feedback => { this.feedback = feedback; this.feedbackcopy = feedback; this.visibility = 'shown'; },
+      errmess => this.errMess = <any>errmess);   
+  
   }
 
   createForm(): void {
     this.feedbackForm = this.fb.group({
       firstname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(25)] ],
       lastname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(25)] ],
-      telnum: ['', [Validators.required, Validators.pattern] ],
+      telnum: ['', [Validators.required, Validators.pattern("[0-9]*")] ],
       email: ['', [Validators.required, Validators.email] ],
-      agree: false,
-      contacttype: 'None',
-      message: ''
+      contactType: ['Tel. Number'],
+      contact: ['Yes'],
+      message: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)] ]
     });
 
-    this.feedbackForm.valueChanges
-      .subscribe(data => this.onValueChanged(data));
-
     this.onValueChanged(); // (re)set validation messages now
+  } 
+  // onSubmit() {
+  //   this.comment = this.commentForm.value;
+  //   this.comment.date = new Date().toISOString();
+  //   console.log(this.comment);
+  //   this.dishcopy.comments.push(this.comment);
+  //   this.dishService.putDish(this.dishcopy)
+  //     .subscribe(dish => {
+  //       this.dish = dish; this.dishcopy = dish;
+  //     },
+  //     errmess => { this.dish = null; this.dishcopy = null; this.errMess = <any> errmess; });
+  //   this.commentFormDirective.resetForm();
+  //   this.commentForm.reset({
+  //     author: '',
+  //     rating: 5,
+  //     comment: ''
+  //   });
+  // }
+    onSubmit() {
+      this.comment = this.feedbackForm.value;
+      console.log(this.comment);
+      this.feedbackcopy.message.push();
+      this.feedbackService.addFeedback(this.feedbackcopy)
+        .subscribe(feedback => {
+          this.feedback = feedback; this.feedbackcopy = feedback;
+        },
+        errmess => { this.feedback = null; this.feedbackcopy = null; this.errMess = <any> errmess; });
+      this.feedbackFormDirective.resetForm();
+      this.feedbackForm.reset({
+        firstname: '',
+        lastname: '',
+        message: ''
+      });
+    }
 
-  }
-
-  onValueChanged(data?: any) {
-    if (!this.feedbackForm) { return; }
-    const form = this.feedbackForm;
-    for (const field in this.formErrors) {
-      if (this.formErrors.hasOwnProperty(field)) {
-        // clear previous error message (if any)
-        this.formErrors[field] = '';
-        const control = form.get(field);
-        if (control && control.dirty && !control.valid) {
-          const messages = this.validationMessages[field];
-          for (const key in control.errors) {
-            if (control.errors.hasOwnProperty(key)) {
-              this.formErrors[field] += messages[key] + ' ';
+    onValueChanged(data?: any) {
+      if (!this.feedbackForm) { return; }
+      const form = this.feedbackForm;
+      for (const field in this.formErrors) {
+        if (this.formErrors.hasOwnProperty(field)) {
+          // clear previous error message (if any)
+          this.formErrors[field] = '';
+          const control = form.get(field);
+          if (control && control.dirty && !control.valid) {
+            const messages = this.validationMessages[field];
+            for (const key in control.errors) {
+              if (control.errors.hasOwnProperty(key)) {
+                this.formErrors[field] += messages[key] + ' ';
+              }
             }
           }
         }
       }
     }
-  }
-
-  onSubmit() {
-    this.feedback = this.feedbackForm.value;
-    console.log(this.feedback);
-    this.feedbackForm.reset({
-      firstname: '',
-      lastname: '',
-      telnum: 0,
-      email: '',
-      agree: false,
-      contacttype: 'None',
-      message: ''
-    });
-    this.feedbackFormDirective.resetForm();
-  }
-
 }
